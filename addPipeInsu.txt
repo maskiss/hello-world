@@ -1,0 +1,31 @@
+$1
+handle (2,109)
+$p $1 不存在，请检查
+return
+endhandle
+
+PIPE
+HANDLE (2,111)
+$p $1 不是管线，请检查
+return
+ENDHANDLE
+
+VAR !ALLBRAN COLL ALL BRAN FOR CE
+VAR !ALLCOMP COLL ALL BRAN MEM FOR CE
+DO !BRAN VALUE !ALLBRAN
+$!BRAN
+TEMP $2
+ISPEC $3
+handle (2,109)
+$p $1 设置保温失败，保温厚度$3数据库不存在，请检查
+return
+endhandle
+
+ENDDO 
+DO !COMP VALUE !ALLCOMP
+$!COMP
+ISPEC $3
+ENDDO 
+pipe 
+TEMP $2
+ISPEC $3
