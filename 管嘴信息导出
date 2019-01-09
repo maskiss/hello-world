@@ -1,0 +1,80 @@
+EQUI
+!equi = !!CE
+SITE
+!world = !!CE
+$!equi
+
+-- mark x y z on equipment
+!size = 3000
+aid clear all
+!equi = !!CE
+!pos = !equi.pos.wrt(!world)
+
+!ori = !equi.ori.wrt(!world)
+!xdir = !ori.xdir()
+!ydir = !ori.ydir()
+!zdir = !ori.zdir()
+
+!xpos = !pos.offset(!xdir, !size)
+!ypos = !pos.offset(!ydir, !size)
+!zpos = !pos.offset(!zdir, !size)
+
+aid arrow at $!pos dir $!xdir Height $!size
+aid arrow at $!pos dir $!ydir Height $!size
+aid arrow at $!pos dir $!zdir Height $!size
+aid text |X| at $!xpos
+aid text |Y| at $!ypos
+aid text |Z| at $!zpos
+
+
+!x0 = !equi.x.string('D0').real()
+!y0 = !equi.y.string('D0').real()
+
+
+-- mark nozz
+
+!str = array()
+!head = '设备名称,管嘴名称,管嘴标准,管嘴规格,管嘴大小,管口方位'
+!str.append(!head )
+!f = 'D:/NOZZDATA.csv'
+!outputfile = object file(!f)
+var !nozzs collect all NOZZ for $!equi
+
+do !nozz values !nozzs
+
+    !nspec = !nozz.dbref().spref.owner.desc
+    !nst = !nozz.dbref().spref.owner.owner.desc
+    !nsize = !nozz.dbref().spref.answer.string('D0')
+    !nname = !nozz.dbref().name
+    !npos = !nozz.dbref().pos.wrt(!world)
+    !x1 = !nozz.dbref().x.string('D0').real()
+    !y1 = !nozz.dbref().y.string('D0').real()
+    -- $p $!x0 $!y0 $!x1 $!y1 $!nname
+    if !x1 eq !x0 then
+        if !y1 gt !y0 then
+            !nangle = '0'
+        elseif !y1 lt !y0 then
+            !nangle = '180'
+        else
+            !nangle = '0'
+        endif
+    else
+        !rad = ((!y1 - !y0 ) / (!x1 - !x0))
+        !deg =  !rad.atan()
+        if !x1 gt !x0 and !y1 ge !y0 then
+            !deg = 90 - !deg
+        elseif !x1 gt !x0 and !y1 lt !y0 then
+            !deg = 90 - !deg 
+        elseif !x1 lt !x0 then
+            !deg = -!deg + 270
+        endif
+        !nangle = !deg.string('D0')
+    endif
+
+!str.append(!equi.name + ',' +  !nname + ',' + !nst + ',' + !nspec + ',' + !nsize + ',' + !nangle )
+
+enddo
+
+!OUTPUTFILE.WRITEFILE('OVERWRITE', !str)
+!OUTPUTFILE.CLOSE()
+syscom |start $!f|
